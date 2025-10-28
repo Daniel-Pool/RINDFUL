@@ -45,7 +45,7 @@ const Navbar = () => {
                 </li>
                 {!user ? null : (
                 <li className = 'p-2 cursor-pointer'>
-                    <Link href="/profile">Dashboard</Link>
+                    <Link href="/dashboard">Dashboard</Link>
                 </li>
                 )}
             </ul>
