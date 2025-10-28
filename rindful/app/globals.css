@@ -2,7 +2,7 @@
 
 :root {
   --background: #ffffff;
-  --foreground: #ffffff;
+  --foreground: #171717;
 }
 
 @theme inline {
@@ -14,17 +14,9 @@
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --background: #ffffff;
+    --background: #0a0a0a;
     --foreground: #ededed;
   }
-}
-
-.logo {
-  font-size: 4rem;
-  font-weight: bold;
-  text-align: center;
-  margin-top: 2rem;
-  color: #ff9501;
 }
 
 body {
