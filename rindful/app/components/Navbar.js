@@ -59,8 +59,10 @@ const Navbar = () => {
                     </li>
                 </ul>
             ) : (
-               <div>
-                <p>Welcome, {user.displayName} </p>
+               <div className = 'text-right'>
+                <p className='text-lg font large'>
+                    Welcome, {user.displayName}
+                </p>
                 <p className='p-2 cursor-pointer' onClick={handleSignOut}>
                     Logout
                 </p>

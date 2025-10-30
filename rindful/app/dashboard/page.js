@@ -17,9 +17,10 @@ const Page = () => {
                 <div>Loading...</div>
             ) : user ? (
                 <>
-                    <p>
+                    <p className="mb-6">
                         Welcome, {user.displayName}!
                     </p>
+                    
                     <h2 className="text-2xl font-bold mb-4">My Journal</h2>
                     <JournalEditor
                             onSave={handleSaveJournal}

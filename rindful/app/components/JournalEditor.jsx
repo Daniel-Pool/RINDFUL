@@ -51,7 +51,7 @@ export default function JournalEditor({ initialValue = '', onSave }) {
   const isAtLimit = wordCount >= WORD_LIMIT;
 
   return (
-    <div className="journal-editor relative">
+    <div className="journal-editor relative w-1/2 h-1/2">
       {/* Toast notification */}
       {showLimitWarning && (
         <div className="absolute top-0 right-0 bg-red-500 text-white px-4 py-2 rounded shadow-lg z-50 animate-pulse">

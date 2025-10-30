@@ -6,7 +6,7 @@ export default function ClientLayoutWrapper({ children }) {
   return (
     <AuthContextProvider>
         <Navbar />
-      `{children}
+      {children}
     </AuthContextProvider>
   );
 }
