@@ -12,7 +12,7 @@ import {
   doc,
 } from 'firebase/firestore';
 import { getAuth } from 'firebase/auth';
-import { app } from '../../firebaseConfig';
+import { app } from '../firebase';
 
 const db = getFirestore(app);
 const auth = getAuth(app);
@@ -52,7 +52,7 @@ export default function MoodSelector() {
             const q = query(
                 collection(db, 'moodEntries'),
                 where('userId', '==', user.uid),
-                here('date', '==', today)
+                where('date', '==', today)
             );
             
             // use mood value of existing record (if it exists)
