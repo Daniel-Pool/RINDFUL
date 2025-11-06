@@ -2,14 +2,14 @@
 
 import { useState, useEffect } from 'react';
 import {
-  getFirestore,
-  collection,
-  query,
-  where,
-  getDocs,
-  addDoc,
-  updateDoc,
-  doc,
+    getFirestore,
+    collection,
+    query,
+    where,
+    getDocs,
+    addDoc,
+    updateDoc,
+    doc,
 } from 'firebase/firestore';
 import { getAuth } from 'firebase/auth';
 import { app } from '../firebase';
@@ -78,7 +78,7 @@ export default function MoodSelector() {
         const q = query(
             collection(db, 'moodEntries'),
             where('userId', '==', user.uid),
-            here('date', '==', today)
+            where('date', '==', today)
         );
         const snapshot = await getDocs(q);
 
@@ -102,7 +102,7 @@ export default function MoodSelector() {
 
     return (
         <div className="flex flex-col items-center gap-3 mt-6">
-            <h2 className="text-lg font-semibold">
+            <h2 className="text-lg font-semibold text-gray-500">
                 {selectedMood ? 'Your mood today:' : 'How are you feeling today?'}
             </h2>
 

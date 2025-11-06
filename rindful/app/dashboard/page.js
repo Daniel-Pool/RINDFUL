@@ -2,24 +2,50 @@
 
 import React from 'react';
 import { UserAuth } from '../context/AuthContext';
-import Navbar from '../components/Navbar';
 import Calendar from './Calendar';
 import MoodScale from './MoodScale';
+import EnergyScale from './EnergyScale';
+import JournalPage from '../journal/page';
+
 
 // main dashboard page (should go here after login)
 export default function DashboardPage() {
     return (
-        <main className="min-h-screen bg-amber-50 flex flex-col">
-            <Navbar />
-            <section className="p-6 flex flex-col gap-6 items-center">
-                <h1 className="text-2xl font-bold text-green-700">
-                    Welcome to Your Dashboard
-                </h1>
-                <Calendar />
-                <MoodScale />
-            </section>
-        </main>
-    )
+        <div className="bg-amber-50 min-h-screen">
+            <main className="min-h-screen flex flex-col">
+                <section className="bg-emerald-400 text-white p-4 flex justify-between items-center">
+                    <div>
+                        <h2 className="text-xl font-semibold">Dashboard</h2>
+                    </div>
+                    <div className="flex gap-4">
+                        <button className="hover:underline">Stats</button>
+                        <button className="hover:underline">Settings</button>
+                        <button className="hover:underline">Profile</button>
+                    </div>
+                </section>
+
+                <section className="bg-orange-300 p-4 flex justify-center">
+                    <Calendar />
+                </section>
+
+                <section className="p-6 flex flex-row gap-6">
+                    <div className="w-2/3 bg-white rounded-xl shadow p-6">
+                        <JournalPage />
+                    </div>
+
+                    <div className="w-1/3 flex flex-col gap-6">
+                        <div className="bg-white rounded-xl shadow p-6">
+                            <MoodScale />
+                        </div>
+
+                        <div className="bg-white rounded-xl shadow p-6">
+                            <EnergyScale />
+                        </div>
+                    </div>
+                </section>
+            </main>
+        </div>
+    );
 }
 
 // default page - commented out for now just in case

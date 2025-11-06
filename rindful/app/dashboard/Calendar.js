@@ -29,7 +29,7 @@ export default function Calendar() {
     const today = new Date();
 
     return (
-        <div className="grid grid-cols-7 gap-2 mt-4">
+        <div className="grid grid-cols-7 gap-3 mt-1">
             {weekDays.map((day, i) => {
                 // compare this day to today
                 const isToday = day.toDateString() === today.toDateString();
@@ -37,15 +37,15 @@ export default function Calendar() {
 
                 // choose background color based on relation to today
                 const bgClass = isToday
-                    ? 'bg-green-500 text-white'
+                    ? 'bg-emerald-400 text-white'
                     : isFuture
-                    ? 'bg-amber-100 text-gray-400'
-                    : 'bg-amber-300 text-gray-800';
+                    ? 'bg-amber-100 text-gray-800'
+                    : 'bg-amber-100 text-gray-800';
 
                 return (
                     <div
                         key={i}
-                        className={`h-20 flex flex-col items-center justify-center rounded-lg shadow-inner font-semibold ${bgClass}`}
+                        className={`h-15 w-15 flex flex-col items-center justify-center rounded-lg shadow-inner font-semibold ${bgClass}`}
                     >
                         <span className="text-sm">
                             {day.toLocaleDateString('en-US', { weekday: 'short' })}

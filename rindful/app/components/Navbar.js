@@ -38,15 +38,15 @@ const Navbar = () => {
     }
 
     return (
-        <div className='h-20 w-full border-b-2 flex items-center justify-between p-2'>
+        <div className='h-20 w-full border-b-2 flex items-center justify-between px-4'>
             <ul className='flex'>
                 <li className = 'p-2 cursor-pointer'>
                     <Link href="/">RINDFUL</Link>
                 </li>
-                {!user ? null : (
-                <li className = 'p-2 cursor-pointer'>
-                    <Link href="/dashboard">Dashboard</Link>
-                </li>
+                {user && (
+                    <li className="p-2 cursor-pointer">
+                        <Link href="/dashboard">Dashboard</Link>
+                    </li>
                 )}
             </ul>
             {!user ? (
@@ -59,15 +59,16 @@ const Navbar = () => {
                     </li>
                 </ul>
             ) : (
-               <div>
-                <p>Welcome, {user.displayName} </p>
-                <p className='p-2 cursor-pointer' onClick={handleSignOut}>
-                    Logout
-                </p>
-               </div>
+               <div className="text-right">
+                    <p>Welcome, {user.displayName}</p>
+                    <p className="p-2 cursor-pointer" onClick={handleSignOut}>
+                        Logout
+                    </p>
+                </div>
             )}
         </div>
     );
 };
+
 
 export default Navbar;

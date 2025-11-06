@@ -15,7 +15,7 @@ export default function JournalPage() {
 
   return (
     <div style={{maxWidth: '50%', margin: '8 auto'}} className="container mx-left p-8">
-      <h1 className="text-3xl font-bold mb-6">My Journal</h1>
+      <h1 className="text-3xl font-bold mb-6 text-gray-500">My Journal</h1>
       <JournalEditor 
         initialValue="<p></p>"
 	onSave={handleSave}
