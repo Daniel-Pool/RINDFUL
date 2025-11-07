@@ -16,7 +16,7 @@ export default function DashboardPage() {
                 <section className="bg-orange-300 p-4 flex justify-center">
                     <Calendar />
                 </section>
-                
+
                 <section className="p-6 flex flex-row gap-6">
                     <div className="w-2/3 bg-white rounded-xl shadow p-6">
                         <JournalPage />

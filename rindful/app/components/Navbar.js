@@ -1,7 +1,7 @@
 'use client';
 
 import Link from 'next/link';
-import React from 'react';
+import React, { useEffect, useState} from 'react';
 import { UserAuth } from '../context/AuthContext';
 import { useRouter } from 'next/navigation';
 
@@ -15,9 +15,7 @@ const Navbar = () => {
         try {
             setIsSigningIn(true);
             await googleSignIn();
-            setIsMenuOpen(false);
 
-            router.push('/dashboard');
         } catch (error) {
             console.log(error);
         }finally {
@@ -25,15 +23,28 @@ const Navbar = () => {
         }
     };
 
+    React.useEffect(() => {
+        if(!loading && user && router.pathname !== '/dashboard') {
+            router.push('/dashboard');
+            setIsMenuOpen(false);
+        }
+    }, [user, loading, router]);
+
     const toggleMenu = () => {
         setIsMenuOpen(prev => !prev);
     };
+
+    React.useEffect(() => {
+        if(!loading && !user && router.pathname !== '/') {
+            router.push('/');
+        }
+    }, [user, loading, router]);
+
 
     const handleSignOut = async () => {
         try {
             await logOut();
             setIsMenuOpen(false);
-            router.push('/');
         } catch (error) {
             console.log(error);
         }
