@@ -13,21 +13,10 @@ export default function DashboardPage() {
     return (
         <div className="bg-amber-50 min-h-screen">
             <main className="min-h-screen flex flex-col">
-                <section className="bg-emerald-400 text-white p-4 flex justify-between items-center">
-                    <div>
-                        <h2 className="text-xl font-semibold">Dashboard</h2>
-                    </div>
-                    <div className="flex gap-4">
-                        <button className="hover:underline">Stats</button>
-                        <button className="hover:underline">Settings</button>
-                        <button className="hover:underline">Profile</button>
-                    </div>
-                </section>
-
                 <section className="bg-orange-300 p-4 flex justify-center">
                     <Calendar />
                 </section>
-
+                
                 <section className="p-6 flex flex-row gap-6">
                     <div className="w-2/3 bg-white rounded-xl shadow p-6">
                         <JournalPage />
