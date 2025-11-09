@@ -1,30 +1,15 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import {
-    getFirestore,
-    collection,
-    query,
-    where,
-    getDocs,
-    addDoc,
-    updateDoc,
-    doc,
-} from 'firebase/firestore';
-import { getAuth } from 'firebase/auth';
-import { app } from '../firebase';
+import { getDailyEntry, updateEnergy } from '../utils/db';
 
-const db = getFirestore(app);
-const auth = getAuth(app);
-
-// energy scale (should be same design as moodscale)
 export default function EnergyScale() {
     const [selectedEnergy, setSelectedEnergy] = useState(null);
     const [loading, setLoading] = useState(true);
 
     const today = new Date().toISOString().split('T')[0];
 
-    const energies = [
+    const energyLevels = [
         { emoji: '💤', value: 1, label: 'Exhausted' },
         { emoji: '😴', value: 2, label: 'Low Energy' },
         { emoji: '🟡', value: 3, label: 'Okay' },
@@ -32,62 +17,43 @@ export default function EnergyScale() {
         { emoji: '🔥', value: 5, label: 'Very Energized' },
     ];
 
-    // load user's energy entry for today
+    // check database for existing energy entry, assuming users can only enter once per day
     useEffect(() => {
+        // get energy entry for the day using call from database
         const fetchEnergy = async () => {
-            const user = auth.currentUser;
-            if (!user) return setLoading(false);
-
-            const q = query(
-                collection(db, 'energyEntries'),
-                where('userId', '==', user.uid),
-                where('date', '==', today)
-            );
-
-            const snapshot = await getDocs(q);
-            if (!snapshot.empty) {
-                setSelectedEnergy(snapshot.docs[0].data().energyValue);
+            try {
+                const entry = await getDailyEntry(today);
+                if (entry && entry.energy) {
+                    setSelectedEnergy(entry.energy);
+                }
+            } catch (error) {
+                console.error('Error fetching energy:', error);
             }
 
             setLoading(false);
         };
         
-        fetchEnergy;
-    }, []);
+        fetchEnergy();
+    }, [today]);
 
-    // save to firestore
+    // save/update the energy level, again using call from database
     const handleEnergySelect = async (value) => {
         setSelectedEnergy(value);
 
-        const user = auth.currentUser;
-        if (!user) return;
-
-        const q = query(
-            collection(db, 'energyEntries'),
-            where('userId', '==', user.uid),
-            where('date', '==', today)
-        );
-
-        const snapshot = await getDocs(q);
-
-        if (!snapshot.empty) {
-            const docRef = doc(db, 'energyEntries', snapshot.docs[0].id);
-            await updateDoc(docRef, { energyValue: value });
-        } else {
-            await addDoc(collection(db, 'energyEntries'), {
-                userId: user.uid,
-                date: today,
-                energyValue: value,
-                timestamp: new Date(),
-            });
+        try {
+            await updateEnergy(today, value);
+        } catch (error) {
+            console.error('Error updating energy:', error);
+            alert('Failed to save energy level');
         }
     };
 
+    // while database is being checked
     if (loading) return <p>Loading energy...</p>;
 
     return (
-        <div className="flex flex-col items-center gap-3 mt-2">
-            <h2 className="text-lg font-semibold text-gray-800">
+        <div className="flex flex-col items-center gap-3 mt-6">
+            <h2 className="text-lg font-semibold text-gray-500">
                 {selectedEnergy ? 'Your energy today:' : 'How is your energy level today?'}
             </h2>
 
@@ -95,9 +61,11 @@ export default function EnergyScale() {
                 {energyLevels.map((lvl) => (
                     <button
                         key={lvl.value}
-                        onClick={() => handleSelect(lvl.value)}
+                        onClick={() => handleEnergySelect(lvl.value)}
                         className={`text-3xl transition transform hover:scale-110 ${
-                            selectedEnergy === lvl.value ? 'opacity-100 drop-shadow' : 'opacity-50'
+                            selectedEnergy === lvl.value 
+                            ? 'opacity-100 drop-shadow' 
+                            : 'opacity-50'
                         }`}
                         title={lvl.label}
                     >

@@ -1,35 +1,14 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import {
-    getFirestore,
-    collection,
-    query,
-    where,
-    getDocs,
-    addDoc,
-    updateDoc,
-    doc,
-} from 'firebase/firestore';
-import { getAuth } from 'firebase/auth';
-import { app } from '../firebase';
+import { getDailyEntry, updateMood } from '../utils/db';
 
-const db = getFirestore(app);
-const auth = getAuth(app);
-
-// mood selector
 export default function MoodSelector() {
-    // value picked by user (1-5)
     const [selectedMood, setSelectedMood] = useState(null);
-
-    // loading
     const [loading, setLoading] = useState(true);
 
-    // today's date (YYYY-MM-DD)
     const today = new Date().toISOString().split('T')[0];
 
-    // array for mood choices
-    // emojis used as placeholders for the graphics
     const moods = [
         { emoji: '⚫', value: 1, label: 'Very Low' },
         { emoji: '🔴', value: 2, label: 'Low' },
@@ -38,66 +17,38 @@ export default function MoodSelector() {
         { emoji: '🟢', value: 5, label: 'Great' },
     ];
 
-    // check Firebase for existing mood entry
-    // assuming users only can enter once per day for now
+    // check database for existing mood entry, assuming users can only enter once per day
     useEffect(() => {
+        // get mood entry for the day using call from database
         const fetchMood = async () => {
-            const user = auth.currentUser;
-            if (!user) {
-                setLoading(false);
-                return;
-            }
-
-            // get the mood entry for today
-            const q = query(
-                collection(db, 'moodEntries'),
-                where('userId', '==', user.uid),
-                where('date', '==', today)
-            );
-            
-            // use mood value of existing record (if it exists)
-            const snapshot = await getDocs(q);
-            if (!snapshot.empty) {
-                const data = snapshot.docs[0].data();
-                setSelectedMood(data.moodValue);
+            try {
+                const entry = await getDailyEntry(today);
+                if (entry && entry.mood) {
+                    setSelectedMood(entry.mood);
+                }
+            } catch (error) {
+                console.error('Error fetching mood:', error);
             }
             
             setLoading(false);
         };
 
         fetchMood();
-    }, []); // should run once
+    }, [today]); 
 
-    // save/update a mood
+    // save/update the mood level, again using call from database
     const handleMoodSelect = async (value) => {
         setSelectedMood(value);
-        const user = auth.currentUser;
-        if (!user) return;
 
-        // check if user already has mood entry again
-        const q = query(
-            collection(db, 'moodEntries'),
-            where('userId', '==', user.uid),
-            where('date', '==', today)
-        );
-        const snapshot = await getDocs(q);
-
-        if (!snapshot.empty) {
-            // update existing entry
-            const docRef = doc(db, 'moodEntries', snapshot.docs[0].id);
-            await updateDoc(docRef, { moodValue: value });
-        } else {
-            // add new entry
-            await addDoc(collection(db, 'moodEntries'), {
-                userId: user.uid,
-                date: today,
-                moodValue: value,
-                timestamp: new Date(),
-            });
+        try {
+            await updateMood(today, value);
+        } catch (error) {
+            console.error('Error updating mood:', error);
+            alert('Failed to save mood');
         }
     };
 
-    // while firestore is being checked
+    // while database is being checked
     if (loading) return <p>Loading mood...</p>;
 
     return (

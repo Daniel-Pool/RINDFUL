@@ -21,6 +21,7 @@
 /build
 
 # misc
+/rindful-test1/
 .DS_Store
 *.pem
 
@@ -40,3 +41,6 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# unfinished features
+/app/utils/exportData.js
