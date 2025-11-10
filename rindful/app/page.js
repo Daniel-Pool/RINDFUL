@@ -30,7 +30,7 @@ export default function Home() {
         <div className="max-w-4xl mx-auto mt-8">
           <p className="text-xl text-gray-600 leading-relaxed">
             RINDFUL is your all-in-one companion for daily mental wellness and organization. 
-            Our intuitive dashboard connects you directly to the tools you need to plan, reflect, and track your progress.
+            Our intuitive dashboard helps you plan, reflect, and track your progress.
           </p>
         </div>
       </div>
@@ -96,7 +96,7 @@ export default function Home() {
 
               <li className="flex items-start">
                 <span className="text-purple-500 mr-2">•</span>
-                <span><strong>Planner:</strong> Input custom events alongside dedicated wellness activities</span>
+                <span><strong>Planner:</strong> Input custom events that is important for the month</span>
               </li>
 
               <li className="flex items-start">
