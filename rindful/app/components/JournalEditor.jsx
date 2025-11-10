@@ -4,6 +4,7 @@ import { Editor } from '@hugerte/hugerte-react';
 import { useRef, useState, useEffect } from 'react';
 import { cleanContent } from '../utils/journalEntry';
 import { getDailyEntry, updateJournalContent } from '../utils/db';
+import { getPrompt } from '../utils/HealthPrompts.js';
 
 export default function JournalEditor({ initialValue = '', onSave }) {
   const editorRef = useRef(null);
@@ -11,6 +12,7 @@ export default function JournalEditor({ initialValue = '', onSave }) {
   const [showLimitWarning, setShowLimitWarning] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
   const [isClient, setIsClient] = useState(false);
+  const [currPlaceholder, changePlaceholder] = useState("What's on your mind?"); // Added this
   const WORD_LIMIT = 200;
 
   const today = new Date().toISOString().split('T')[0];
@@ -116,6 +118,38 @@ export default function JournalEditor({ initialValue = '', onSave }) {
     }
   };
 
+  // Function to check and see if the textbox is empty, based on code in the handleSave
+  const checkTextBoxEmpty = () => { 
+    const rawContent = editorRef.current.getContent();
+    const content = cleanContent(rawContent);
+    if (!content || content.trim().length === 0) {
+      console.log('Content is Empty');
+      return true;
+    }
+    return false;
+  }
+
+// Function for getting the new prompt
+  const getNewPrompt = () => {
+
+    const prompt = getPrompt();
+    const emptyStatus = checkTextBoxEmpty();
+    if (emptyStatus == true) {
+      changePlaceholder(prompt); // Change the placeholder in the journal
+      console.log(currPlaceholder);
+      return;
+    } else {
+      if(confirm("A journal entry is in progress. Pressing OK will reset the journal and give a new prompt.")) { // If there is text in the journal already, state a warning
+         changePlaceholder(prompt);
+      } else {
+        return;
+      }
+    }
+
+  }
+
+  
+
   const isAtLimit = wordCount >= WORD_LIMIT;
 
   if (!isClient) {
@@ -148,8 +182,9 @@ export default function JournalEditor({ initialValue = '', onSave }) {
         }}
         onEditorChange={handleEditorChange}
         initialValue={initialValue}
+        key={currPlaceholder} // Change the text of the placeholder to have a new prompt
         init={{
-          placeholder: "What's on your mind?",
+          placeholder: currPlaceholder,
           height: 500,
           menubar: false,
           plugins: [
@@ -184,6 +219,9 @@ export default function JournalEditor({ initialValue = '', onSave }) {
           }
         }}
       />
+
+       {/* Added a gap between buttons*/}
+      <div className= "flex gap-3">
       
       <button 
         onClick={handleSave}
@@ -196,6 +234,15 @@ export default function JournalEditor({ initialValue = '', onSave }) {
       >
         {isSaving ? 'Saving...' : 'Save Entry'}
       </button>
+
+      {/* Added a new button for getting a different prompt */}
+      <button 
+        onClick={getNewPrompt}
+        className={`mt-4 px-4 py-2 rounded text-white bg-blue-500 hover:bg-blue-600`}>
+        {"Get a new prompt"}
+      </button>
+      </div>
+
     </div>
   );
 }
