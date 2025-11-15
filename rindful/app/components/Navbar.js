@@ -91,6 +91,18 @@ const Navbar = () => {
                     {isMenuOpen && (
 
                         <div className='absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg z-10'>
+                            <Link href='/dashboard' className='block px-4 py-2 hover:bg-gray-200 text-black' onClick={toggleMenu}>
+                                Dashboard
+                            </Link>
+
+                            <Link href='/planner' className='block px-4 py-2 hover:bg-gray-200 text-black' onClick={toggleMenu}>
+                                Planner
+                            </Link>
+
+                            <Link href='/wellness' className='block px-4 py-2 hover:bg-gray-200 text-black' onClick={toggleMenu}>
+                                Wellness Calendar
+                            </Link>
+
                             <Link href='/profile' className='block px-4 py-2 hover:bg-gray-200 text-black' onClick={toggleMenu}>
                                 Profile
                             </Link>
