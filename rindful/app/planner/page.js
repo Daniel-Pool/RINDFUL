@@ -22,6 +22,26 @@ const getTodayDate = () => {
   return `${year}-${month}-${day}`;
 };
 
+const formatDate = (dateObj) => {
+  const year = dateObj.getFullYear();
+  const month = String(dateObj.getMonth() + 1).padStart(2, '0');
+  const day = String(dateObj.getDate()).padStart(2, '0');
+  return `${year}-${month}-${day}`;
+};
+
+const getLastSevenDays = () => {
+  const dates = [];
+  const today = new Date();
+  
+  for (let i = 6; i >= 0; i--) {
+    const date = new Date(today);
+    date.setDate(today.getDate() - i); 
+    dates.push(formatDate(date));
+  }
+  
+  return dates;
+};
+
 export default function PlannerPage() {
   const searchParams = useSearchParams();
   const [selectedDate, setSelectedDate] = useState(getTodayDate());
@@ -30,6 +50,16 @@ export default function PlannerPage() {
   const [loading, setLoading] = useState(true);
   const [editingTaskId, setEditingTaskId] = useState(null);
   const [editingTaskTitle, setEditingTaskTitle] = useState('');
+
+  const [sevenDayCompletedCount, setSevenDayCompletedCount] = useState(0);
+
+  useEffect(() => {
+    const urlDate = searchParams?.get('date');
+    if (urlDate) {
+      setSelectedDate(urlDate);
+    }
+  }, [searchParams]);
+
 
   // Update selected date from URL parameter on mount and when it changes
   useEffect(() => {
@@ -66,6 +96,62 @@ export default function PlannerPage() {
     loadTasks();
   }, [selectedDate]);
 
+  useEffect(() => {
+    const calculateSevenDayProgress = async () => {
+      if (!db || typeof window === 'undefined') return;
+      
+      const lastSevenDays = getLastSevenDays();
+      
+      try {
+        const allTasks = await db.tasks
+          .where('date')
+          .anyOf(lastSevenDays)
+          .toArray();
+
+        const completedInSevenDays = allTasks.filter(task => task.completed).length;
+        
+        setSevenDayCompletedCount(completedInSevenDays);
+      } catch (error) {
+        console.error('Error calculating 7-day progress:', error);
+      }
+    };
+
+    calculateSevenDayProgress();
+  }, [tasks]);
+
+const getYesterdayDate = () => {
+    const yesterday = new Date();
+    yesterday.setDate(yesterday.getDate() - 1);
+    return formatDate(yesterday);
+};
+
+useEffect(() => {
+        const handleDailyReset = async () => {
+            if (!db || typeof window === 'undefined') return;
+            
+            const yesterdayDate = getYesterdayDate();
+
+            try {
+
+                const oldIncompleteTasks = await db.tasks
+                    .where('date').below(getTodayDate()) 
+                    .and(task => task.completed === false) 
+                    .toArray();
+
+                if (oldIncompleteTasks.length > 0) {
+                    console.log(`Deleting ${oldIncompleteTasks.length} old incomplete tasks.`);
+                    const idsToDelete = oldIncompleteTasks.map(t => t.id);
+                    await db.tasks.bulkDelete(idsToDelete);
+                }
+
+            } catch (error) {
+                console.error('Error during daily reset/cleanup:', error);
+            }
+        };
+
+        handleDailyReset();
+    }, []);
+
   // Add a new task
   const handleAddTask = async () => {
     if (!newTaskTitle.trim() || !db || typeof window === 'undefined') return;
@@ -91,6 +177,8 @@ export default function PlannerPage() {
     }
   };
 
+
+  
   // Toggle task completion
   const handleToggleComplete = async (taskId) => {
     if (!db || typeof window === 'undefined') return;
