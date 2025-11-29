@@ -314,19 +314,20 @@ export default function UnifiedCalendar({ selectedDate, onDateSelect }) {
             
             {/* date/month text and expansion button */}
             <div className="flex-1 flex justify-center relative" style={{ minWidth: "320px" }}>
-              <h3 className="text-xl font-bold text-gray-800 text-center">
+              <h3  className="text-xl font-bold text-gray-800 text-center">
                 {isExpanded 
                   ? currentDate.toLocaleDateString('en-US', { month: 'long', year: 'numeric' })
                   : formatDateHeader(selectedDate)
                 }
               </h3>
-              <button
-                onClick={toggleExpanded}
-                className="relative -right-85 top-1/2 -translate-y-0 px-3 py-1 bg-white hover:bg-gray-100 rounded-lg text-sm font-medium transition-colors flex items-center gap-2 shadow-sm"
-              >
-                {isExpanded ? <ChevronUp className="w-4 h-4 text-gray-800" /> : <ChevronDown className="w-4 h-4 text-gray-800" />}
-              </button>
             </div>
+
+            <button
+              onClick={toggleExpanded}
+              className="flex px-3 py-1 bg-white hover:bg-gray-100 rounded-lg text-sm font-medium transition-colors flex items-center gap-2 shadow-sm"
+            >
+              {isExpanded ? <ChevronUp className="w-4 h-4 text-gray-800" /> : <ChevronDown className="w-4 h-4 text-gray-800" />}
+            </button>
             
             {/* right navigation button */}
             <button
