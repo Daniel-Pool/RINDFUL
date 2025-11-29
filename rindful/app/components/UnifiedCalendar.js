@@ -297,7 +297,7 @@ export default function UnifiedCalendar({ selectedDate, onDateSelect }) {
       {/* calendar container with absolute positioning to overlay content below */}
 
       <div className="bg-amber-50 rounded-lg shadow-lg w-full max-w-5xl transition-all duration-500 ease-out, my-13" 
-        style={{ position: 'absolute', zIndex: 50, top: '0' }}>
+        style={{ position: 'absolute', zIndex: 5, top: '0' }}>
         
         {/* fixed-height header and week view section */}
         <div className="p-0">
@@ -322,7 +322,7 @@ export default function UnifiedCalendar({ selectedDate, onDateSelect }) {
               </h3>
               <button
                 onClick={toggleExpanded}
-                className="absolute right-55 top-1/2 -translate-y-1/2 px-3 py-1 bg-white hover:bg-gray-100 rounded-lg text-sm font-medium transition-colors flex items-center gap-2 shadow-sm"
+                className="relative -right-85 top-1/2 -translate-y-0 px-3 py-1 bg-white hover:bg-gray-100 rounded-lg text-sm font-medium transition-colors flex items-center gap-2 shadow-sm"
               >
                 {isExpanded ? <ChevronUp className="w-4 h-4 text-gray-800" /> : <ChevronDown className="w-4 h-4 text-gray-800" />}
               </button>
