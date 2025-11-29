@@ -1,17 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { useSearchParams } from 'next/navigation';
-import Dexie from 'dexie';
-
-// Initialize Dexie database
-let db;
-if (typeof window !== 'undefined') {
-  db = new Dexie('PlannerDB');
-  db.version(1).stores({
-    tasks: '++id, date, title, completed'
-  });
-}
+import { getPlannerTasksByDate, updatePlannerTasks, getEntriesByDateRange } from "../utils/db";
 
 // Helper function to get today's date in YYYY-MM-DD format
 const getTodayDate = () => {
@@ -42,42 +32,21 @@ const getLastSevenDays = () => {
   return dates;
 };
 
-export default function PlannerPage() {
-  const searchParams = useSearchParams();
-  const [selectedDate, setSelectedDate] = useState(getTodayDate());
+export default function PlannerPage( { selectedDate } ) {
   const [tasks, setTasks] = useState([]);
   const [newTaskTitle, setNewTaskTitle] = useState('');
   const [loading, setLoading] = useState(true);
   const [editingTaskId, setEditingTaskId] = useState(null);
   const [editingTaskTitle, setEditingTaskTitle] = useState('');
-
   const [sevenDayCompletedCount, setSevenDayCompletedCount] = useState(0);
-
-  useEffect(() => {
-    const urlDate = searchParams?.get('date');
-    if (urlDate) {
-      setSelectedDate(urlDate);
-    }
-  }, [searchParams]);
-
-
-  // Update selected date from URL parameter on mount and when it changes
-  useEffect(() => {
-    const urlDate = searchParams?.get('date');
-    if (urlDate) {
-      setSelectedDate(urlDate);
-    }
-  }, [searchParams]);
 
   // Load tasks for the selected date
   const loadTasks = async () => {
-    if (!db || typeof window === 'undefined') return;
+    if (!selectedDate) return;
     try {
       setLoading(true);
-      const dateTasks = await db.tasks
-        .where('date')
-        .equals(selectedDate)
-        .toArray();
+      let dateTasks = await getPlannerTasksByDate(selectedDate);
+      if (!Array.isArray(dateTasks)) dateTasks = [];
       // Sort tasks: incomplete first, then completed
       const sortedTasks = dateTasks.sort((a, b) => {
         if (a.completed === b.completed) return 0;
@@ -96,21 +65,24 @@ export default function PlannerPage() {
     loadTasks();
   }, [selectedDate]);
 
+  // calculate 7-day statistics
   useEffect(() => {
     const calculateSevenDayProgress = async () => {
-      if (!db || typeof window === 'undefined') return;
       
       const lastSevenDays = getLastSevenDays();
+      const startDate = lastSevenDays[0];
+      const endDate = lastSevenDays[lastSevenDays.length - 1];
+
       
       try {
-        const allTasks = await db.tasks
-          .where('date')
-          .anyOf(lastSevenDays)
-          .toArray();
-
-        const completedInSevenDays = allTasks.filter(task => task.completed).length;
-        
-        setSevenDayCompletedCount(completedInSevenDays);
+          const entries = await getEntriesByDateRange(startDate, endDate);
+          let totalCompleted = 0;
+          entries.forEach(entry => {
+            if(entry.tasks && Array.isArray(entry.tasks)) {
+              totalCompleted += entry.tasks.filter(task => task && task.completed).length;
+            }
+          });
+        setSevenDayCompletedCount(totalCompleted);
       } catch (error) {
         console.error('Error calculating 7-day progress:', error);
       }
@@ -127,21 +99,23 @@ const getYesterdayDate = () => {
 
 useEffect(() => {
         const handleDailyReset = async () => {
-            if (!db || typeof window === 'undefined') return;
             
-            const yesterdayDate = getYesterdayDate();
+            const today = getTodayDate();
+            const lastSevenDays = getLastSevenDays();
+            const startDate = lastSevenDays[0];
 
             try {
 
-                const oldIncompleteTasks = await db.tasks
-                    .where('date').below(getTodayDate()) 
-                    .and(task => task.completed === false) 
-                    .toArray();
-
-                if (oldIncompleteTasks.length > 0) {
-                    console.log(`Deleting ${oldIncompleteTasks.length} old incomplete tasks.`);
-                    const idsToDelete = oldIncompleteTasks.map(t => t.id);
-                    await db.tasks.bulkDelete(idsToDelete);
+                const oldIncompleteTasks = await getEntriesByDateRange(startDate, today);
+                for (const entry of oldIncompleteTasks) {
+                  if (entry.date < today && entry.tasks && Array.isArray(entry.tasks)) {
+                    const oldIncompleteTasks = entry.tasks.filter(task => task && !task.completed);
+                    if (oldIncompleteTasks.length > 0) {
+                        console.log(`Deleting ${oldIncompleteTasks.length} old incomplete tasks.`);
+                        const idsToDelete = entry.tasks.filter(task => task.completed);
+                        await updatePlannerTasks(entry.date, idsToDelete);
+                    }
+                  }
                 }
 
             } catch (error) {
@@ -154,17 +128,18 @@ useEffect(() => {
 
   // Add a new task
   const handleAddTask = async () => {
-    if (!newTaskTitle.trim() || !db || typeof window === 'undefined') return;
+    if (!newTaskTitle.trim()) return;
 
     try {
       const newTask = {
         date: selectedDate,
         title: newTaskTitle.trim(),
-        completed: false
+        completed: false,
+        id: Date.now()
       };
 
-      const id = await db.tasks.add(newTask);
-      const updatedTasks = [...tasks, { ...newTask, id }];
+      const updatedTasks = [...tasks, { ...newTask, id: Date.now() }];
+      await updatePlannerTasks(selectedDate, updatedTasks);
       // Sort tasks: incomplete first, then completed
       const sortedTasks = updatedTasks.sort((a, b) => {
         if (a.completed === b.completed) return 0;
@@ -181,15 +156,12 @@ useEffect(() => {
   
   // Toggle task completion
   const handleToggleComplete = async (taskId) => {
-    if (!db || typeof window === 'undefined') return;
     try {
       const task = tasks.find(t => t.id === taskId);
       if (!task) return;
 
-      await db.tasks.update(taskId, { completed: !task.completed });
-      const updatedTasks = tasks.map(t => 
-        t.id === taskId ? { ...t, completed: !t.completed } : t
-      );
+      const updatedTasks = tasks.map(t => t.id === taskId ? { ...t, completed: !t.completed } : t);
+      await updatePlannerTasks(selectedDate, updatedTasks);
       // Sort tasks: incomplete first, then completed
       const sortedTasks = updatedTasks.sort((a, b) => {
         if (a.completed === b.completed) return 0;
@@ -203,10 +175,10 @@ useEffect(() => {
 
   // Delete a task
   const handleDeleteTask = async (taskId) => {
-    if (!db || typeof window === 'undefined') return;
     try {
-      await db.tasks.delete(taskId);
-      setTasks(tasks.filter(t => t.id !== taskId));
+      const updatedTasks = tasks.filter(t => t.id !== taskId);
+      await updatePlannerTasks(selectedDate, updatedTasks);
+      setTasks(updatedTasks);
       if (editingTaskId === taskId) {
         setEditingTaskId(null);
         setEditingTaskTitle('');
@@ -224,12 +196,9 @@ useEffect(() => {
 
   // Save edited task
   const handleSaveTask = async (taskId) => {
-    if (!editingTaskTitle.trim() || !db || typeof window === 'undefined') return;
     try {
-      await db.tasks.update(taskId, { title: editingTaskTitle.trim() });
-      const updatedTasks = tasks.map(t => 
-        t.id === taskId ? { ...t, title: editingTaskTitle.trim() } : t
-      );
+      const updatedTasks = tasks.map(t => t.id === taskId ? { ...t, title: editingTaskTitle.trim() } : t);
+      await updatePlannerTasks(selectedDate, updatedTasks);
       setTasks(updatedTasks);
       setEditingTaskId(null);
       setEditingTaskTitle('');
@@ -266,11 +235,11 @@ useEffect(() => {
   const progressPercentage = totalCount > 0 ? Math.round((completedCount / totalCount) * 100) : 0;
 
   return (
-    <div className="min-h-screen bg-amber-50 p-6">
+    <div className="flex flex-col items-center gap-1 p-1">
+      <h2 className="text-3lg font-bold mb-1 text-gray-500">Daily Planner</h2>
       <div className="max-w-2xl mx-auto">
-        <h1 className="text-3xl font-bold mb-6 text-gray-800">Daily Planner</h1>
         
-        {/* Date Picker */}
+{/*         Date Picker
         <div className="mb-6">
           <label htmlFor="date-picker" className="block text-sm font-medium text-gray-700 mb-2">
             Select Date
@@ -282,25 +251,22 @@ useEffect(() => {
             onChange={(e) => setSelectedDate(e.target.value)}
             className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 text-black"
           />
-        </div>
+        </div> */}
 
-        {/* Add Task Section */}
-        <div className="mb-6 bg-white rounded-lg shadow p-4">
-          <div className="flex gap-2">
-            <input
-              type="text"
-              value={newTaskTitle}
-              onChange={(e) => setNewTaskTitle(e.target.value)}
-              onKeyPress={handleKeyPress}
-              placeholder="Enter a new task..."
-              className="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 text-black"
-            />
-            <button
-              onClick={handleAddTask}
-              className="px-6 py-2 bg-orange-500 text-white rounded-lg hover:bg-orange-600 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:ring-offset-2 transition-colors"
-            >
-              Add
-            </button>
+        {/* 7-Day Statistics */}
+        <div className="bg-gradient-to-r from-indigo-50 to-purple-50 rounded-lg p-4 border border-indigo-200">
+          <h3 className="text-sm font-semibold text-gray-700 mb-3">Weekly Stats</h3>
+          <div className="grid grid-cols-2 gap-3">
+            <div className="bg-white rounded-lg p-3 shadow-sm">
+              <p className="text-xs font-medium text-gray-500">Total Completed</p>
+              <p className="text-2xl font-bold text-indigo-600">{sevenDayCompletedCount}</p>
+            </div>
+            <div className="bg-white rounded-lg p-3 shadow-sm">
+              <p className="text-xs font-medium text-gray-500">Daily Average</p>
+              <p className="text-2xl font-bold text-purple-600">
+                {(sevenDayCompletedCount / 7).toFixed(1)}
+              </p>
+            </div>
           </div>
         </div>
 
@@ -324,8 +290,28 @@ useEffect(() => {
           </div>
         )}
 
+        {/* Add Task Section */}
+        <div className="mb-6 bg-white rounded-lg shadow p-4">
+          <div className="flex gap-2">
+            <input
+              type="text"
+              value={newTaskTitle}
+              onChange={(e) => setNewTaskTitle(e.target.value)}
+              onKeyPress={handleKeyPress}
+              placeholder="Enter a new task..."
+              className="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 text-black"
+            />
+            <button
+              onClick={handleAddTask}
+              className="px-6 py-2 bg-orange-500 text-white rounded-lg hover:bg-orange-600 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:ring-offset-2 transition-colors"
+            >
+              Add
+            </button>
+          </div>
+        </div>
+
         {/* Tasks List */}
-        <div className="bg-white rounded-lg shadow">
+        <div className="bg-white rounded-lg shadow h-32 overflow-y-auto">
           {loading ? (
             <div className="p-6 text-center text-gray-500">Loading tasks...</div>
           ) : tasks.length === 0 ? (

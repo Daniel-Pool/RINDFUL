@@ -1,14 +1,6 @@
 'use client';
 import { useState, useEffect } from 'react';
-import Dexie from 'dexie';
-
-let db;
-if (typeof window !== 'undefined') {
-  db = new Dexie('PlannerDB');
-  db.version(1).stores({
-    tasks: '++id, date, title, completed'
-  });
-}
+import { getEntriesByDateRange } from '../utils/db';
 
 const formatDate = (dateObj) => {
   const year = dateObj.getFullYear();
@@ -31,19 +23,23 @@ const getLastSevenDays = () => {
 export default function StatsPage() {
   const [sevenDayCompletedCount, setSevenDayCompletedCount] = useState(0);
   const [isLoading, setIsLoading] = useState(true);
+
   const lastSevenDays = getLastSevenDays();
+  const startDate = lastSevenDays[0];
+  const endDate = lastSevenDays[lastSevenDays.length - 1];
 
   useEffect(() => {
     const calculateSevenDayProgress = async () => {
-      if (!db || typeof window === 'undefined') return;
       
       try {
-        const allTasks = await db.tasks
-          .where('date')
-          .anyOf(lastSevenDays)
-          .toArray();
-
-        const completedInSevenDays = allTasks.filter(task => task.completed).length;
+        const allTasks = await getEntriesByDateRange(startDate, endDate);
+        
+        let completedInSevenDays = 0;
+        allTasks.forEach(entry => {
+          if (entry.tasks && Array.isArray(entry.tasks)) {
+            completedInSevenDays += entry.tasks.filter(task => task && task.completed).length;
+          }
+        })
         
         setSevenDayCompletedCount(completedInSevenDays);
       } catch (error) {
@@ -80,9 +76,9 @@ export default function StatsPage() {
             stroke="currentColor"
           >
             <path
-              stroke-linecap="round"
-              stroke-linejoin="round"
-              stroke-width="2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth="2"
               d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"
             ></path>
           </svg>
@@ -98,7 +94,7 @@ export default function StatsPage() {
       </div>
       <div className="rounded-lg bg-slate-900/50 p-3">
         <p className="text-xs font-medium text-slate-400">Average Task Completed Per Day</p>
-        <p className="text-lg font-semibold text-white"> {sevenDayCompletedCount / 7}</p>
+        <p className="text-lg font-semibold text-white"> {(sevenDayCompletedCount / 7).toFixed(1)}</p>
       </div>
 
     </div>

@@ -6,40 +6,76 @@ import { cleanContent } from '../utils/journalEntry';
 import { getDailyEntry, updateJournalContent } from '../utils/db';
 import { getPrompt } from '../utils/HealthPrompts.js';
 
-export default function JournalEditor({ initialValue = '', onSave }) {
+export default function JournalEditor({ initialValue = '', onSave, selectedDate }) {
   const editorRef = useRef(null);
   const [wordCount, setWordCount] = useState(0);
   const [showLimitWarning, setShowLimitWarning] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
   const [isClient, setIsClient] = useState(false);
-  const [currPlaceholder, changePlaceholder] = useState("What's on your mind?"); // Added this
+  const [currPlaceholder, changePlaceholder] = useState("What's on your mind?");
+  const [editorReady, setEditorReady] = useState(false);
   const WORD_LIMIT = 200;
 
-  const today = new Date().toISOString().split('T')[0];
+  const today = selectedDate || new Date().toISOString().split('T')[0];
 
   useEffect(() => {
     setIsClient(true);
   }, []);
 
-  // load today's entry if it exists
+  // load entry when date changes or editor becomes ready
   useEffect(() => {
-    if (!isClient) return;
-
+    if (!editorReady || !editorRef.current) {
+      console.log('Editor not ready yet, skipping load');
+      return;
+    }
+    
     const loadEntry = async () => {
+      console.log('Loading entry for date:', today);
+      
       try {
         const entry = await getDailyEntry(today);
-        if (entry && entry.content && editorRef.current) {
+        console.log('Loaded entry:', entry);
+        
+        if (entry && entry.content) {
+          console.log('Setting content:', entry.content);
           editorRef.current.setContent(entry.content);
+          
+          // Force word count update after content is set
+          setTimeout(() => {
+            if (editorRef.current && editorRef.current.plugins && editorRef.current.plugins.wordcount) {
+              const words = editorRef.current.plugins.wordcount.body.getWordCount();
+              setWordCount(words);
+              console.log('Word count updated:', words);
+              
+              // Also update the status bar
+              const statusbar = editorRef.current.getContainer().querySelector('.tox-statusbar__text-container');
+              if (statusbar) {
+                const color = words >= WORD_LIMIT ? '#dc2626' : '#6b7280';
+                const weight = words >= WORD_LIMIT ? 'bold' : 'normal';
+                statusbar.innerHTML = `<span style="color: ${color}; font-weight: ${weight};">${words} / ${WORD_LIMIT} words</span>`;
+              }
+            }
+          }, 100); // Small delay to ensure content is fully loaded
+        } else {
+          console.log('No entry found, clearing editor');
+          editorRef.current.setContent('<p></p>');
+          setWordCount(0);
+          
+          // Update status bar for empty content
+          const statusbar = editorRef.current.getContainer().querySelector('.tox-statusbar__text-container');
+          if (statusbar) {
+            statusbar.innerHTML = `<span style="color: #6b7280; font-weight: normal;">0 / ${WORD_LIMIT} words</span>`;
+          }
         }
       } catch (error) {
         console.error('Error loading entry:', error);
+        editorRef.current.setContent('<p></p>');
+        setWordCount(0);
       }
     };
     
-    if (editorRef.current) {
-      loadEntry();
-    }
-  }, [today, isClient]);
+    loadEntry();
+  }, [today, editorReady]);
 
   const handleEditorChange = (content, editor) => {
     const words = editor.plugins.wordcount.body.getWordCount();
@@ -95,7 +131,7 @@ export default function JournalEditor({ initialValue = '', onSave }) {
         console.log('Word count:', wordCount);
         console.log('Date (today):', today);
         
-        // save to indexDB
+        // Save to IndexedDB
         const result = await updateJournalContent(today, content, wordCount);
         console.log('Save result:', result);
         
@@ -118,8 +154,10 @@ export default function JournalEditor({ initialValue = '', onSave }) {
     }
   };
 
-  // Function to check and see if the textbox is empty, based on code in the handleSave
+  // Function to check if the textbox is empty
   const checkTextBoxEmpty = () => { 
+    if (!editorRef.current) return true; // Add safety check
+    
     const rawContent = editorRef.current.getContent();
     const content = cleanContent(rawContent);
     if (!content || content.trim().length === 0) {
@@ -127,35 +165,35 @@ export default function JournalEditor({ initialValue = '', onSave }) {
       return true;
     }
     return false;
-  }
+  };
 
-// Function for getting the new prompt
+  // Function for getting a new prompt
   const getNewPrompt = () => {
-
     const prompt = getPrompt();
     const emptyStatus = checkTextBoxEmpty();
-    if (emptyStatus == true) {
-      changePlaceholder(prompt); // Change the placeholder in the journal
-      console.log(currPlaceholder);
-      return;
+    
+    if (emptyStatus) {
+      // If empty, just change the placeholder
+      changePlaceholder(prompt);
+      console.log('New placeholder:', prompt);
     } else {
-      if(confirm("A journal entry is in progress. Pressing OK will reset the journal and give a new prompt.")) { // If there is text in the journal already, state a warning
-         changePlaceholder(prompt);
-      } else {
-        return;
+      // If there's content, warn the user
+      if (confirm("A journal entry is in progress. Pressing OK will clear the current entry and show a new prompt.")) {
+        editorRef.current.setContent('<p></p>'); // Clear the editor
+        changePlaceholder(prompt);
+        setWordCount(0);
       }
     }
-
-  }
-
-  
+  };
 
   const isAtLimit = wordCount >= WORD_LIMIT;
 
   if (!isClient) {
     return (
       <div className="journal-editor">
-        <div className="h-[500px] bg-gray-100 animate-pulse rounded"></div>
+        <div className="h-[500px] bg-gray-100 animate-pulse rounded flex items-center justify-center">
+          <p className="text-gray-500">Loading editor...</p>
+        </div>
         <button 
           disabled
           className="mt-4 px-4 py-2 rounded text-white bg-gray-400 cursor-not-allowed"
@@ -176,13 +214,15 @@ export default function JournalEditor({ initialValue = '', onSave }) {
       
       <Editor
         onInit={(evt, editor) => {
+          console.log('Editor initialized');
           editorRef.current = editor;
           const words = editor.plugins.wordcount.body.getWordCount();
           setWordCount(words);
+          setEditorReady(true); // Mark editor as ready
         }}
         onEditorChange={handleEditorChange}
         initialValue={initialValue}
-        key={currPlaceholder} // Change the text of the placeholder to have a new prompt
+        key={currPlaceholder} // Re-render when placeholder changes
         init={{
           placeholder: currPlaceholder,
           height: 500,
@@ -220,29 +260,31 @@ export default function JournalEditor({ initialValue = '', onSave }) {
         }}
       />
 
-       {/* Added a gap between buttons*/}
-      <div className= "flex gap-3">
-      
-      <button 
-        onClick={handleSave}
-        disabled={isSaving}
-        className={`mt-4 px-4 py-2 rounded text-white ${
-          isSaving 
-            ? 'bg-gray-400 cursor-not-allowed' 
-            : 'bg-blue-500 hover:bg-blue-600'
-        }`}
-      >
-        {isSaving ? 'Saving...' : 'Save Entry'}
-      </button>
+      <div className="flex gap-3">
+        <button 
+          onClick={handleSave}
+          disabled={isSaving || !editorReady}
+          className={`mt-4 px-4 py-2 rounded text-white ${
+            isSaving || !editorReady
+              ? 'bg-gray-400 cursor-not-allowed' 
+              : 'bg-blue-500 hover:bg-blue-600'
+          }`}
+        >
+          {isSaving ? 'Saving...' : 'Save Entry'}
+        </button>
 
-      {/* Added a new button for getting a different prompt */}
-      <button 
-        onClick={getNewPrompt}
-        className={`mt-4 px-4 py-2 rounded text-white bg-blue-500 hover:bg-blue-600`}>
-        {"Get a new prompt"}
-      </button>
+        <button 
+          onClick={getNewPrompt}
+          disabled={!editorReady}
+          className={`mt-4 px-4 py-2 rounded text-white ${
+            !editorReady
+              ? 'bg-gray-400 cursor-not-allowed'
+              : 'bg-blue-500 hover:bg-blue-600'
+          }`}
+        >
+          Get a new prompt
+        </button>
       </div>
-
     </div>
   );
 }
