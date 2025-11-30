@@ -10,7 +10,7 @@
 | Artem Rospotniuk  | Developer                      |
 
 ## 🧐 Challenge
-###To say mental health is among the most prevalent issues in today’s society would be an understatement. Per the NIH, nearly a quarter of all adults in the U.S. were reported to have some form of mental illness in 2022. With the rise of the internet, an increasingly abundant stream of information available at the average person’s fingertips, and its many adverse side-effects (political polarization, narrative siloing, and increased social atomization), maintaining one’s mental wellbeing can prove a significant challenge.
+### To say mental health is among the most prevalent issues in today’s society would be an understatement. Per the NIH, nearly a quarter of all adults in the U.S. were reported to have some form of mental illness in 2022. With the rise of the internet, an increasingly abundant stream of information available at the average person’s fingertips, and its many adverse side-effects (political polarization, narrative siloing, and increased social atomization), maintaining one’s mental wellbeing can prove a significant challenge.
 
 ## ❤️ Solution
 ### RINDFUL allows users to daily journal and log their moods (using a citrus-inspired scale) in a safe environment. Users can view their mood progress by seeing graphical representations of how their mood changed over different time frames (hours, days, weeks, etc…). 
