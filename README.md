@@ -1,1 +1,24 @@
 # RINDFUL
+## BY: Pentigator
+### Team Members & Roles: 
+| Name              | Roles                          |
+|-------------------|--------------------------------|
+| Daniel Pool       | Developer, Product Manager     |
+| Annalisa Folsom   | Developer, Documentation       |
+| Brian Miller      | Developer, Designer            |
+| Polina Antonenko  | Developer, Scrum Master        |
+| Artem Rospotniuk  | Developer                      |
+
+## 🧐 Challenge
+###To say mental health is among the most prevalent issues in today’s society would be an understatement. Per the NIH, nearly a quarter of all adults in the U.S. were reported to have some form of mental illness in 2022. With the rise of the internet, an increasingly abundant stream of information available at the average person’s fingertips, and its many adverse side-effects (political polarization, narrative siloing, and increased social atomization), maintaining one’s mental wellbeing can prove a significant challenge.
+
+## ❤️ Solution
+### RINDFUL allows users to daily journal and log their moods (using a citrus-inspired scale) in a safe environment. Users can view their mood progress by seeing graphical representations of how their mood changed over different time frames (hours, days, weeks, etc…). 
+Plainly put: the goal of this app is to offer a lifeline to a prospective user, a space where they can focus their attention inward instead of outward, via earnest expression and reflection.
+
+##🌲CI/CD Process:
+### - User Stories: https://docs.google.com/document/d/1U39HXU8xxEeSrgDvdAJMg62R5JpGGhb53SX98jX_PMM/edit?usp=sharing
+### - Product Backlog: 
+![Project Screenshot](assets/pbi.png)
+
+
