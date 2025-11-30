@@ -1,14 +1,9 @@
 'use client';
+
 import { useState, useEffect } from 'react';
 import { getEntriesByDateRange } from '../utils/db';
 
-const formatDate = (dateObj) => {
-  const year = dateObj.getFullYear();
-  const month = String(dateObj.getMonth() + 1).padStart(2, '0');
-  const day = String(dateObj.getDate()).padStart(2, '0');
-  return `${year}-${month}-${day}`;
-};
-
+//Caculates the last seven days
 const getLastSevenDays = () => {
   const dates = [];
   const today = new Date();
@@ -40,7 +35,7 @@ export default function StatsPage() {
             completedInSevenDays += entry.tasks.filter(task => task && task.completed).length;
           }
         })
-        
+         //enters the task completed into an array to caculate the sum
         setSevenDayCompletedCount(completedInSevenDays);
       } catch (error) {
         console.error('Error calculating 7-day progress:', error);

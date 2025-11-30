@@ -19,6 +19,7 @@ const formatDate = (dateObj) => {
   return `${year}-${month}-${day}`;
 };
 
+//Get Seven Days
 const getLastSevenDays = () => {
   const dates = [];
   const today = new Date();
