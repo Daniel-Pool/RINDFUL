@@ -1,9 +1,9 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { getDailyEntry, updateMood } from '../utils/db';
 
-export default function MoodSelector() {
+export default function MoodSelector({ onChange }) {
     const [selectedMood, setSelectedMood] = useState(null);
     const [loading, setLoading] = useState(true);
 
@@ -42,6 +42,9 @@ export default function MoodSelector() {
 
         try {
             await updateMood(today, value);
+
+            // trigger streak refresh
+            if (onChange) onChange();
         } catch (error) {
             console.error('Error updating mood:', error);
             alert('Failed to save mood');

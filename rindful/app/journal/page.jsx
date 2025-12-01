@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import JournalEditor from '../components/JournalEditor';
 
-export default function JournalPage() {
+export default function JournalPage({ onChange }) {
   const [savedContent, setSavedContent] = useState('');
 
   const handleSave = (content) => {
@@ -11,6 +11,9 @@ export default function JournalPage() {
     setSavedContent(content);
     // Placeholder, no actual save functionality yet
     alert('Journal entry saved!');
+
+    // trigger streak refresh
+    if (onChange) onChange();
   };
 
   return (

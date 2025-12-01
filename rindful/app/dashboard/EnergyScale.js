@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import { getDailyEntry, updateEnergy } from '../utils/db';
 
-export default function EnergyScale() {
+export default function EnergyScale({ onChange }) {
     const [selectedEnergy, setSelectedEnergy] = useState(null);
     const [loading, setLoading] = useState(true);
 
@@ -40,6 +40,8 @@ export default function EnergyScale() {
     const handleEnergySelect = async (value) => {
         setSelectedEnergy(value);
 
+        // trigger streak refresh
+        if (onChange) onChange();
         try {
             await updateEnergy(today, value);
         } catch (error) {
