@@ -34,14 +34,18 @@ export default function DashboardPage() {
     return (
         <div className="bg-amber-50 min-h-screen">
             <main className="min-h-screen flex flex-col">
+                {/* calendar */}
                 <section className="bg-orange-300 p-4">
-                    <div className="flex flex-row items-start gap-4">
-                        <UnifiedCalendar
-                        mode={calendarMode}
-                        selectedDate={selectedDate}
-                        onDateSelect={handleDateSelect}
-                    />
-                        <StreakBadge refreshKey={refreshStreak} />
+                    <div className="flex flex-row items-start justify-center gap-6">
+                        <div className="flex-1 flex justify-center">
+                            <div className="flex flex-row items-start gap-4">
+                            <UnifiedCalendar
+                            mode={calendarMode}
+                            selectedDate={selectedDate}
+                            onDateSelect={handleDateSelect}
+                            />
+                            </div>
+                        </div>
                     </div>
                 </section>
 
