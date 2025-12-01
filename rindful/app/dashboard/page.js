@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useCallback } from 'react';
 import { UserAuth } from '../context/AuthContext';
 import UnifiedCalendar, { getTodayString } from '../components/UnifiedCalendar';
 import PlannerPage from '../planner/page.js';
@@ -8,10 +8,17 @@ import MoodScale from './MoodScale';
 import EnergyScale from './EnergyScale';
 import JournalPage from '../journal/page';
 import { useRouter } from 'next/navigation';
-
+import StreakBadge from '@/components/StreakBadge';
 
 // main dashboard page (should go here after login)
 export default function DashboardPage() {
+    const [refreshStreak, setRefreshStreak] = useState(0);
+
+    // func to refresh (so streak is correct)
+    const triggerStreakRefresh = useCallback(() => {
+        setRefreshStreak(prev => prev + 1);
+    }, []);
+
     const [selectedDate, setSelectedDate] = useState(getTodayString());
     const [calendarMode, setCalendarMode] = useState('week');
     const router = useRouter();
@@ -27,17 +34,25 @@ export default function DashboardPage() {
     return (
         <div className="bg-amber-50 min-h-screen">
             <main className="min-h-screen flex flex-col">
+                {/* calendar */}
                 <section className="bg-orange-300 p-4">
-                    <UnifiedCalendar
-                        mode={calendarMode}
-                        selectedDate={selectedDate}
-                        onDateSelect={handleDateSelect}
-                    />
+                    <div className="flex flex-row items-start justify-center gap-6">
+                        <div className="flex-1 flex justify-center">
+                            <div className="flex flex-row items-start gap-4">
+                            <UnifiedCalendar
+                            mode={calendarMode}
+                            selectedDate={selectedDate}
+                            onDateSelect={handleDateSelect}
+                            />
+                            </div>
+                        </div>
+                    </div>
                 </section>
 
                 <section className="p-6 flex flex-row gap-6">
                     <div className="w-2/3 bg-white rounded-xl shadow p-6">
                         <JournalPage 
+                        onChange={triggerStreakRefresh} 
                         key={selectedDate}
                         selectedDate={selectedDate}
                         />
@@ -45,11 +60,17 @@ export default function DashboardPage() {
 
                     <div className="w-1/3 flex flex-col gap-6">
                         <div className="bg-white rounded-xl shadow p-6">
-                            <MoodScale selectedDate={selectedDate}/>
+                            <MoodScale 
+                            onChange={triggerStreakRefresh} 
+                            selectedDate={selectedDate}
+                            />
                         </div>
 
                         <div className="bg-white rounded-xl shadow p-6">
-                            <EnergyScale selectedDate={selectedDate}/>
+                            <EnergyScale 
+                            onChange={triggerStreakRefresh} 
+                            selectedDate={selectedDate}
+                            />
                         </div>
 
                         <div className="bg-white rounded-xl shadow p-6">

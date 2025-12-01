@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { getEntriesByDateRange, updateMood, updateEnergy, getDailyEntry } from '../utils/db';
 import Dexie from 'dexie';
+import StreakBadge from '../components/StreakBadge';
 
 // Initialize Dexie database for planner tasks
 let plannerDb;
@@ -321,33 +322,39 @@ export default function WellnessCalendarPage() {
           <div className="bg-white rounded-lg p-6 shadow-sm">
             {/* Legend */}
             <div className="mb-8 pb-6 border-b border-gray-200">
-              <div className="flex flex-col gap-4">
-                {/* Mood legend */}
-                <div className="flex items-center gap-4">
-                  <span className="text-sm font-medium text-gray-700">Mood level:</span>
-                  {moodLegend.map((item) => (
-                    <div key={item.value} className="flex items-center gap-2">
-                      <div
-                        className="w-4 h-4 rounded-full"
-                        style={{ backgroundColor: item.color }}
-                      />
-                      <span className="text-sm text-gray-600">{item.label}</span>
-                    </div>
-                  ))}
+              <div className="flex justify-between items-center">
+                {/* left side: mood & energy */}
+                <div className="flex flex-col gap-4">
+                  {/* Mood legend */}
+                  <div className="flex items-center gap-4">
+                    <span className="text-sm font-medium text-gray-700">Mood level:</span>
+                    {moodLegend.map((item) => (
+                      <div key={item.value} className="flex items-center gap-2">
+                        <div
+                          className="w-4 h-4 rounded-full"
+                          style={{ backgroundColor: item.color }}
+                        />
+                        <span className="text-sm text-gray-600">{item.label}</span>
+                      </div>
+                    ))}
+                  </div>
+
+                  {/* Energy legend */}
+                  <div className="flex items-center gap-4">
+                    <span className="text-sm font-medium text-gray-700">⚡ Energy level:</span>
+                    {energyOptions.map((item) => (
+                      <div key={item.value} className="flex items-center gap-2">
+                        <span className="text-base">{item.emoji}</span>
+                        <span className="text-sm text-gray-600">{item.display}</span>
+                      </div>
+                    ))}
+                  </div>
                 </div>
 
-                {/* Energy legend */}
-                <div className="flex items-center gap-4">
-                  <span className="text-sm font-medium text-gray-700">⚡ Energy level:</span>
-                  {energyOptions.map((item) => (
-                    <div key={item.value} className="flex items-center gap-2">
-                      <span className="text-base">{item.emoji}</span>
-                      <span className="text-sm text-gray-600">{item.display}</span>
-                    </div>
-                  ))}
-                </div>
-              </div>
+              {/* right side: streak badge */}
+              <StreakBadge refreshKey={0} />
             </div>
+          </div>
 
             <div className="grid grid-cols-7 gap-2 mb-8">
               {/* Day names header */}
