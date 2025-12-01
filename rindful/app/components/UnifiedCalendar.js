@@ -1,5 +1,6 @@
 'use client';
 
+import color, { tw } from '@/utils/colors.js'
 import { useState, useEffect, useMemo } from 'react';
 import { getEntriesByDateRange } from '../utils/db';
 import { ChevronDown, ChevronUp } from 'lucide-react';
@@ -248,7 +249,7 @@ export default function UnifiedCalendar({ selectedDate, onDateSelect }) {
   // render a single day cell
   const renderDayCell = (dayData, index) => {
     if (!dayData) {
-      return <div key={`empty-${index}`} className="aspect-square" />;
+      return <div key={`empty-${index}`} className={`aspect-square`} />;
     }
 
     const { day, date, dateObj, inCurrentMonth } = dayData;
@@ -258,7 +259,7 @@ export default function UnifiedCalendar({ selectedDate, onDateSelect }) {
     const isFuture = dateObj > today;
 
     // overflow dates are faded out
-    const extraClass = inCurrentMonth ? '' : 'text-gray-100 opacity-40';
+    const extraClass = inCurrentMonth ? '' : `${tw.text.superLight} opacity-40`;
 
     const mood = entry?.mood;
     const energy = entry?.energy;
@@ -266,10 +267,10 @@ export default function UnifiedCalendar({ selectedDate, onDateSelect }) {
     const energyEmoji = getEnergyEmoji(energy);
 
     const bgClass = isToday
-      ? 'bg-emerald-400 text-white'
+      ? `${tw.bg.secondary} ${tw.text.white}`
       : isFuture
-      ? 'bg-white text-gray-800'
-      : 'bg-amber-100 text-gray-800';
+      ? `${tw.bg.mainHeavier} ${tw.text.primary}`
+      : `${tw.bg.mainHeavier} ${tw.text.primary}`;
 
     return (
       <button
@@ -280,41 +281,41 @@ export default function UnifiedCalendar({ selectedDate, onDateSelect }) {
         } ${extraClass}`}
         type="button"
       >
-        <span className="text-base font-semibold mb-1">{day}</span>
+        <span className={`text-base font-semibold mb-1`}>{day}</span>
         {mood && (
           <div
-            className="w-2.5 h-2.5 rounded-full mb-0.5"
+            className={`w-2.5 h-2.5 rounded-full mb-0.5`}
             style={{ backgroundColor: moodColor }}
           />
         )}
-        {energy && <span className="text-xs">{energyEmoji}</span>}
+        {energy && <span className={`text-xs`}>{energyEmoji}</span>}
       </button>
     );
   };
 
   return (
-    <div className="flex flex-col items-center justify-center min-h-[140px] max-h-[140px]">
+    <div className={`flex flex-col items-center justify-center min-h-[140px] max-h-[140px]`}>
       {/* calendar container with absolute positioning to overlay content below */}
 
-      <div className="bg-amber-50 rounded-lg shadow-lg w-full max-w-5xl transition-all duration-500 ease-out, my-13" 
-        style={{ position: 'absolute', zIndex: 5, top: '0' }}>
+      <div className={`${tw.bg.main} rounded-lg shadow-lg w-full max-w-5xl transition-all duration-500 ease-out my-13`} 
+        style={{ position: 'absolute', zIndex: 5, left: '50%', transform: 'translateX(-50%)', top: '0' }}>
         
         {/* fixed-height header and week view section */}
-        <div className="p-0">
+        <div className={`p-0`}>
           {/* navigation buttons */}
-          <div className="flex items-center w-full relative mb-0">
+          <div className={`flex items-center w-full relative mb-0`}>
             {/* left navigation button */}
             <button
               onClick={handlePrev}
-              className="px-4 py-0 bg-white text-gray-800 hover:bg-gray-100 rounded-lg font-bold transition-colors shadow-sm"
+              className={`${tw.button.lightOddball}`}
               type="button"
             >
               ←
             </button>
             
             {/* date/month text and expansion button */}
-            <div className="flex-1 flex justify-center relative" style={{ minWidth: "320px" }}>
-              <h3  className="text-xl font-bold text-gray-800 text-center">
+            <div className={`flex-1 flex justify-center relative`} style={{ minWidth: "320px" }}>
+              <h3  className={`text-xl font-bold ${tw.text.primary} text-center`}>
                 {isExpanded 
                   ? currentDate.toLocaleDateString('en-US', { month: 'long', year: 'numeric' })
                   : formatDateHeader(selectedDate)
@@ -324,15 +325,15 @@ export default function UnifiedCalendar({ selectedDate, onDateSelect }) {
 
             <button
               onClick={toggleExpanded}
-              className="flex px-3 py-1 bg-white hover:bg-gray-100 rounded-lg text-sm font-medium transition-colors flex items-center gap-2 shadow-sm"
+              className={`${tw.button.lightOddball}`}
             >
-              {isExpanded ? <ChevronUp className="w-4 h-4 text-gray-800" /> : <ChevronDown className="w-4 h-4 text-gray-800" />}
+              {isExpanded ? <ChevronUp className={`w-4 h-4 ${tw.text.primary}`} /> : <ChevronDown className={`w-4 h-4 ${tw.text.primary}`} />}
             </button>
             
             {/* right navigation button */}
             <button
               onClick={handleNext}
-              className="px-4 py-0 bg-white text-gray-800 hover:bg-gray-100 rounded-lg font-bold transition-colors shadow-sm"
+              className={`${tw.button.lightOddball}`}
               type="button"
             >
               →
@@ -340,11 +341,11 @@ export default function UnifiedCalendar({ selectedDate, onDateSelect }) {
           </div>
 
           {/* day names header */}
-          <div className="grid grid-cols-7 gap-8 px-0 mb-0">
+          <div className={`grid grid-cols-7 gap-8 px-0 mb-0`}>
             {dayNames.map((dayName) => (
               <div
                 key={dayName}
-                className="text-center font-semibold text-gray-700 py-0 text-sm"
+                className={`text-center font-semibold ${tw.text.quaternary} py-0 text-sm`}
               >
                 {dayName}
               </div>
@@ -354,12 +355,12 @@ export default function UnifiedCalendar({ selectedDate, onDateSelect }) {
 
         {/* expandable calendar grid section */}
         <div 
-          className=" x-6 pb-6 transition-all duration-500 ease-in-out overflow-hidden"
+          className={` x-6 pb-6 transition-all duration-500 ease-in-out overflow-hidden`}
           style={{
             maxHeight: (isExpanded && !isCollapsing) ? '875px' : '115px'
           }}
         >
-          <div className="grid grid-cols-7 gap-8">
+          <div className={`grid grid-cols-7 gap-8`}>
             {/* show full month while expanded, show week only when fully collapsed */}
             {isExpanded
               ? calendarData.allDays.map((dayData, index) => renderDayCell(dayData, index))

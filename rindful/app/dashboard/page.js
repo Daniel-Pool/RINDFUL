@@ -9,6 +9,9 @@ import EnergyScale from './EnergyScale';
 import JournalPage from '../journal/page';
 import { useRouter } from 'next/navigation';
 import StreakBadge from '@/components/StreakBadge';
+import color, { tw } from '@/utils/colors.js'
+import StatsPage from '@/stats/page.js';
+
 
 // main dashboard page (should go here after login)
 export default function DashboardPage() {
@@ -32,49 +35,50 @@ export default function DashboardPage() {
     };
 
     return (
-        <div className="bg-amber-50 min-h-screen">
-            <main className="min-h-screen flex flex-col">
-                {/* calendar */}
-                <section className="bg-orange-300 p-4">
-                    <div className="flex flex-row items-start justify-center gap-6">
-                        <div className="flex-1 flex justify-center">
-                            <div className="flex flex-row items-start gap-4">
-                            <UnifiedCalendar
+        <div className={`${tw.bg.main} max-h-screen`}>
+            <main className={`h-screen flex flex-col`}>
+                <section className={`${tw.bg.calendar} p-4`}>
+                    <div className="flex flex-row items-center gap-4">
+                        <UnifiedCalendar
                             mode={calendarMode}
                             selectedDate={selectedDate}
                             onDateSelect={handleDateSelect}
-                            />
-                            </div>
-                        </div>
+                        />
                     </div>
                 </section>
 
-                <section className="p-6 flex flex-row gap-6">
-                    <div className="w-2/3 bg-white rounded-xl shadow p-6">
+                <section className={`p-6 flex flex-row gap-6`}>
+                    <div className={`w-1/3 ${tw.bg.card} rounded-xl shadow p-6 `}>
                         <JournalPage 
-                        onChange={triggerStreakRefresh} 
+                        onChange={triggerStreakRefresh}
                         key={selectedDate}
                         selectedDate={selectedDate}
                         />
                     </div>
 
-                    <div className="w-1/3 flex flex-col gap-6">
-                        <div className="bg-white rounded-xl shadow p-6">
-                            <MoodScale 
-                            onChange={triggerStreakRefresh} 
-                            selectedDate={selectedDate}
-                            />
-                        </div>
-
-                        <div className="bg-white rounded-xl shadow p-6">
-                            <EnergyScale 
-                            onChange={triggerStreakRefresh} 
-                            selectedDate={selectedDate}
-                            />
-                        </div>
-
-                        <div className="bg-white rounded-xl shadow p-6">
+                        <div className={`${tw.bg.card} rounded-xl shadow p-6`}>
                             <PlannerPage selectedDate={selectedDate}/>                    
+                        </div>
+
+                    <div className={`w-1/3 flex flex-col gap-6`}>
+                        <div className={`${tw.bg.card} rounded-xl shadow p-6`}>
+                            <MoodScale
+                            onChange={triggerStreakRefresh}
+                            selectedDate={selectedDate}
+                            />
+                        </div>
+
+                        <div className={`${tw.bg.card} rounded-xl shadow p-6`}>
+                            <EnergyScale 
+                            onChange={triggerStreakRefresh}
+                            selectedDate={selectedDate}
+                            />
+                        </div>
+
+
+                        <div className={`${tw.bg.card} rounded-xl shadow p-6`}>
+                            <StreakBadge refreshKey={refreshStreak} />
+                            <StatsPage selectedDate={selectedDate} />
                         </div>
                     </div>
                 </section>
