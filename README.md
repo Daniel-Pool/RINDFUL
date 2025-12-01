@@ -25,7 +25,35 @@ Plainly put: the goal of this app is to offer a lifeline to a prospective user, 
 ### 📓 Note: As a team, we also completed sprint retrospective 1, 2, Weekly Scrum Report, and Software Tests. The files to these will not be publicly available. 
 
 ## ⚡Quick Start
-### ⬇️ Install Dependencies:
+To install and tun this project locally, follow these steps:
+
+### 🎨 Prerequisites 
+- Node.js (version 18 or higher)
+- npm or yarn or pnpm
+  - Install Dependencies:
+      ```npm install```
+      ```yarn install```
+      ```pnpm install```
+
+### ⬇️ Installation Steps
+
+1. Clone the repository:
+```bash
+git clone https://github.com/Daniel-Pool/RINDFUL.git
+cd rindful
+```
+
+2. Install hugerte
+```npm install @hugerte/hugerte-react```
+
+3. Create a Firestore Account and get API Keys
+   - 📓 Note: Make sure to select web app
+    
+4. Correctly place the corresponding API Key into the .env.local file
+
+5. Enjoy!
+
+### References
 
 
 
