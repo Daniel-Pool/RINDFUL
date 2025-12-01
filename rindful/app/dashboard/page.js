@@ -1,11 +1,13 @@
 'use client';
 
-import React, { useState, useCallback } from 'react';
+import React, { useState, useCallback, useState } from 'react';
 import { UserAuth } from '../context/AuthContext';
-import Calendar from './Calendar';
+import UnifiedCalendar, { getTodayString } from '../components/UnifiedCalendar';
+import PlannerPage from '../planner/page.js';
 import MoodScale from './MoodScale';
 import EnergyScale from './EnergyScale';
 import JournalPage from '../journal/page';
+import { useRouter } from 'next/navigation';
 import StreakBadge from '@/components/StreakBadge';
 
 // main dashboard page (should go here after login)
@@ -17,28 +19,58 @@ export default function DashboardPage() {
         setRefreshStreak(prev => prev + 1);
     }, []);
 
+    const [selectedDate, setSelectedDate] = useState(getTodayString());
+    const [calendarMode, setCalendarMode] = useState('week');
+    const router = useRouter();
+
+    const handleDateSelect = (date) => {
+        setSelectedDate(date);
+    };
+
+    const toggleCalendarMode = () => {
+        router.push('/wellness-calendar');
+    };
+
     return (
         <div className="bg-amber-50 min-h-screen">
             <main className="min-h-screen flex flex-col">
-                <section className="bg-orange-300 p-4 flex justify-center">
+                <section className="bg-orange-300 p-4">
                     <div className="flex flex-row items-start gap-4">
-                        <Calendar />
+                        <UnifiedCalendar
+                        mode={calendarMode}
+                        selectedDate={selectedDate}
+                        onDateSelect={handleDateSelect}
+                    />
                         <StreakBadge refreshKey={refreshStreak} />
                     </div>
                 </section>
 
                 <section className="p-6 flex flex-row gap-6">
                     <div className="w-2/3 bg-white rounded-xl shadow p-6">
-                        <JournalPage onChange={triggerStreakRefresh} />
+                        <JournalPage 
+                        onChange={triggerStreakRefresh} 
+                        key={selectedDate}
+                        selectedDate={selectedDate}
+                        />
                     </div>
 
                     <div className="w-1/3 flex flex-col gap-6">
                         <div className="bg-white rounded-xl shadow p-6">
-                            <MoodScale onChange={triggerStreakRefresh} />
+                            <MoodScale 
+                            onChange={triggerStreakRefresh} 
+                            selectedDate={selectedDate}
+                            />
                         </div>
 
                         <div className="bg-white rounded-xl shadow p-6">
-                            <EnergyScale onChange={triggerStreakRefresh} />
+                            <EnergyScale 
+                            onChange={triggerStreakRefresh} 
+                            selectedDate={selectedDate}
+                            />
+                        </div>
+
+                        <div className="bg-white rounded-xl shadow p-6">
+                            <PlannerPage selectedDate={selectedDate}/>                    
                         </div>
                     </div>
                 </section>
@@ -47,25 +79,3 @@ export default function DashboardPage() {
     );
 }
 
-// default page - commented out for now just in case
-// const Page = () => {
-//     const { user, loading } = UserAuth();
-
-//    return (
-//        <div className='p-4'>
-//            {loading ? (
-//                <div>Loading...</div>
-//            ) : user ? (
-//                <p>
-//                    Welcome, {user.displayName}!
-//                </p>
-//            ) : (
-//                <p>
-//                    You are not logged in. Please log in to view your profile.
-//                </p>
-//            )}
-//        </div>
-//    );
-//};
-
-//export default Page;

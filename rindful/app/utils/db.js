@@ -155,6 +155,7 @@ export const saveDailyEntry = async (entryData) => {
         energy: entryData.energy !== undefined ? entryData.energy : existing.energy || null,
         wordCount: entryData.wordCount !== undefined ? entryData.wordCount : existing.wordCount || 0,
         timestamp: new Date().getTime(),
+        tasks: entryData.tasks !== undefined ? entryData.tasks : existing.tasks || [],
       };
       
       const putRequest = store.put(dailyEntry);
@@ -217,6 +218,16 @@ export const updateEnergy = async (date, energyValue) => {
     date: date,
     energy: energyValue
   });
+};
+
+export const updatePlannerTasks = async (date, tasks) => {
+  // merge into daily entry for given date
+  return await saveDailyEntry({ date, tasks });
+};
+
+export const getPlannerTasksByDate = async (date) => {
+  const entry = await getDailyEntry(date);
+  return entry?.tasks || [];
 };
 
 // get entry for a specific date

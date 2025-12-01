@@ -3,11 +3,11 @@
 import { useState, useEffect } from 'react';
 import { getDailyEntry, updateEnergy } from '../utils/db';
 
-export default function EnergyScale({ onChange }) {
+export default function EnergyScale({ selectedDate, onChange }) {
     const [selectedEnergy, setSelectedEnergy] = useState(null);
     const [loading, setLoading] = useState(true);
 
-    const today = new Date().toISOString().split('T')[0];
+    const today = selectedDate || new Date().toISOString().split('T')[0];
 
     const energyLevels = [
         { emoji: '💤', value: 1, label: 'Exhausted' },

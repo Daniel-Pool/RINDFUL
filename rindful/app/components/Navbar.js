@@ -11,6 +11,7 @@ const Navbar = () => {
     const [isSigningIn, setIsSigningIn] = React.useState(false);
     const [isMenuOpen, setIsMenuOpen] = React.useState(false);
 
+    //Checks if User is loaded
     const handleSignIn = async () => {
         try {
             setIsSigningIn(true);
@@ -23,6 +24,7 @@ const Navbar = () => {
         }
     };
 
+    //Upon login, the user is redirected to dashboard
     React.useEffect(() => {
         if(!loading && user && router.pathname !== '/dashboard') {
             router.push('/dashboard');
@@ -40,7 +42,7 @@ const Navbar = () => {
         }
     }, [user, loading, router]);
 
-
+    //Handles when the user wants to log out
     const handleSignOut = async () => {
         try {
             await logOut();
@@ -82,7 +84,7 @@ const Navbar = () => {
                 </ul>
                 
             ) : (
-
+                //The MEnu that appears when the user is logged in
                 <div className='relative'>
                     <div className='p-2 cursor-pointer' onClick={toggleMenu}>
                         Welcome, {user.displayName} ▼
@@ -101,10 +103,6 @@ const Navbar = () => {
 
                             <Link href='/wellness' className='block px-4 py-2 hover:bg-gray-200 text-black' onClick={toggleMenu}>
                                 Wellness Calendar
-                            </Link>
-
-                            <Link href='/profile' className='block px-4 py-2 hover:bg-gray-200 text-black' onClick={toggleMenu}>
-                                Profile
                             </Link>
 
                             <Link href='/settings' className='block px-4 py-2 hover:bg-gray-200 text-black' onClick={toggleMenu}>

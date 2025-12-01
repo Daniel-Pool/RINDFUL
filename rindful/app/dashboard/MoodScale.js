@@ -3,11 +3,11 @@
 import React, { useState, useEffect } from 'react';
 import { getDailyEntry, updateMood } from '../utils/db';
 
-export default function MoodSelector({ onChange }) {
+export default function MoodSelector({ selectedDate, onChange }) {
     const [selectedMood, setSelectedMood] = useState(null);
     const [loading, setLoading] = useState(true);
 
-    const today = new Date().toISOString().split('T')[0];
+    const today = selectedDate || new Date().toISOString().split('T')[0];
 
     const moods = [
         { emoji: '⚫', value: 1, label: 'Very Low' },

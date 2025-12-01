@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import JournalEditor from '../components/JournalEditor';
 
-export default function JournalPage({ onChange }) {
+export default function JournalPage({ selectedDate, onChange }) {
   const [savedContent, setSavedContent] = useState('');
 
   const handleSave = (content) => {
@@ -21,7 +21,8 @@ export default function JournalPage({ onChange }) {
       <h1 className="text-3xl font-bold mb-6 text-gray-500">My Journal</h1>
       <JournalEditor 
         initialValue="<p></p>"
-	onSave={handleSave}
+	      onSave={handleSave}
+        selectedDate={selectedDate}
       />
     </div>
   );
