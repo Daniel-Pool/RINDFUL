@@ -10,7 +10,7 @@ const Navbar = () => {
     const { user, googleSignIn, logOut, loading } = UserAuth();
     const [isSigningIn, setIsSigningIn] = React.useState(false);
     const [isMenuOpen, setIsMenuOpen] = React.useState(false);
-
+    
     //Checks if User is loaded
     const handleSignIn = async () => {
         try {
@@ -23,7 +23,6 @@ const Navbar = () => {
             setIsSigningIn(false);
         }
     };
-
     //Upon login, the user is redirected to dashboard
     React.useEffect(() => {
         if(!loading && user && router.pathname !== '/dashboard') {
@@ -42,7 +41,7 @@ const Navbar = () => {
         }
     }, [user, loading, router]);
 
-    //Handles when the user wants to log out
+     //Handles when the user wants to log out
     const handleSignOut = async () => {
         try {
             await logOut();
@@ -84,9 +83,9 @@ const Navbar = () => {
                 </ul>
                 
             ) : (
-                //The MEnu that appears when the user is logged in
-                <div className='relative'>
-                    <div className='p-2 cursor-pointer' onClick={toggleMenu}>
+                 //The Menu that appears when the user is logged in
+                <div className={`relative`}>
+                    <div className={`p-2 cursor-pointer`} onClick={toggleMenu}>
                         Welcome, {user.displayName} ▼
                     </div>
 
@@ -105,7 +104,7 @@ const Navbar = () => {
                                 Wellness Calendar
                             </Link>
 
-                            <Link href='/settings' className='block px-4 py-2 hover:bg-gray-200 text-black' onClick={toggleMenu}>
+                            <Link href='/settings' className={`block px-4 py-2 ${tw.bg.washedCard} text-black`} onClick={toggleMenu}>
                                 Settings
                             </Link>
 
