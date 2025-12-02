@@ -35,8 +35,8 @@ export default function DashboardPage() {
     };
 
     return (
-        <div className={`${tw.bg.main} min-h-screen`}>
-            <main className={`flex flex-col`}>
+        <div className={`${tw.bg.main} max-h-screen`}>
+            <main className={`h-screen flex flex-col`}>
                 <section className={`${tw.bg.calendar} p-4`}>
                     <div className="flex flex-row items-center gap-4">
                         <UnifiedCalendar
