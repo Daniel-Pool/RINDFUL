@@ -55,7 +55,11 @@ cd rindful
 
 ### References
 
-Google. (2025). Manage users in Firebase. Google. https://firebase.google.com/docs/auth/web/manage-users 
+Google. (2025). *Manage users in Firebase*. Google. https://firebase.google.com/docs/auth/web/manage-users 
+
+National Institute of Mental Health. “Mental Illness - National Institute of Mental Health (NIMH).” *National Institute of Mental Health*, https://www.nimh.nih.gov/health/statistics/mental-illness. Accessed 20 September 2025.
+
+https://www.youtube.com/watch?v=S_sV6bYWKXQ  
 
 
 
