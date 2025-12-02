@@ -61,5 +61,13 @@ National Institute of Mental Health. “Mental Illness - National Institute of M
 
 https://www.youtube.com/watch?v=S_sV6bYWKXQ  
 
+https://www.chartjs.org/docs/latest/samples/advanced/linear-gradient.html
+
+https://tailwindcss.com/docs/flex
+
+https://javascript.info/indexeddb
+
+https://tailwindcss.com/docs/colors
+
 
 
