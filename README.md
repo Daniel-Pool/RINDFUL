@@ -55,6 +55,7 @@ cd rindful
 
 ### References
 
+Google. (2025). Manage users in Firebase. Google. https://firebase.google.com/docs/auth/web/manage-users 
 
 
 
