@@ -242,9 +242,9 @@ useEffect(() => {
   const progressPercentage = totalCount > 0 ? Math.round((completedCount / totalCount) * 100) : 0;
 
   return (
-    <div className={`flex flex-col items-center gap-1 p-1`}>
+    <div className={`flex flex-col gap-1 p-1 w-full h-full`}>
       <h2 className={`text-3lg font-bold mb-1 ${tw.text.tertiary}`}>Daily Planner</h2>
-      <div className={`max-w-2xl mx-auto`}>
+      <div className={`w-full flex flex-col`}>
 
         {/* 7-Day Statistics */}
         <div className={`${tw.bg.mainLight} rounded-lg p-4 border ${tw.border.light}`}>
@@ -304,7 +304,7 @@ useEffect(() => {
         </div>
 
         {/* Tasks List */}
-        <div className={`${tw.bg.card} rounded-lg shadow h-32 overflow-y-auto`}>
+        <div className={`${tw.bg.card} rounded-lg shadow flex-shrink-0`}>
           {loading ? (
             <div className={`p-6 text-center ${tw.text.tertiary}`}>Loading tasks...</div>
           ) : tasks.length === 0 ? (
@@ -312,7 +312,7 @@ useEffect(() => {
               No tasks for this date. Add one above!
             </div>
           ) : (
-            <ul className={`divide-y divide-gray-200`}>
+            <ul className={`divide-y divide-gray-200 max-h-[400px] overflow-y-auto`}>
               {tasks.filter(task => task != null).map((task) => (
                 <li
                   key={task.id}

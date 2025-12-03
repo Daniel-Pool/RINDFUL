@@ -56,7 +56,7 @@ export default function DashboardPage() {
                         />
                     </div>
 
-                        <div className={`${tw.bg.card} rounded-xl shadow p-6`}>
+                        <div className={`${tw.bg.card} rounded-xl shadow p-6 flex-shrink-0 self-start`}>
                             <PlannerPage selectedDate={selectedDate}/>                    
                         </div>
 

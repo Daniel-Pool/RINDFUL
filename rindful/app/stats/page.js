@@ -324,7 +324,7 @@ export default function StatsPage({ selectedDate = getTodayString() }) {
       <div className="w-full max-w-6xl mx-auto space-y-6">
 
         {/* Chart */}
-        <div className={`bg-white w-full rounded-lg px-6 border-2 ${tw.border.light}`}>
+        <div id="chart-container-7day-trends" className={`bg-white w-full rounded-lg px-6 border-2 ${tw.border.light}`}>
           <h3 className="text-lg font-bold text-gray-800 mb-0">7-Day Trends</h3>
           
           {loading ? (

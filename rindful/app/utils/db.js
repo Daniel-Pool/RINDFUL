@@ -154,8 +154,13 @@ export const saveDailyEntry = async (entryData) => {
         mood: entryData.mood !== undefined ? entryData.mood : existing.mood || null,
         energy: entryData.energy !== undefined ? entryData.energy : existing.energy || null,
         wordCount: entryData.wordCount !== undefined ? entryData.wordCount : existing.wordCount || 0,
-        timestamp: new Date().getTime(),
+        timestamp: entryData.timestamp !== undefined ? entryData.timestamp : (existing.timestamp || new Date().getTime()),
         tasks: entryData.tasks !== undefined ? entryData.tasks : existing.tasks || [],
+        // Optional fields for mood export
+        weather: entryData.weather !== undefined ? entryData.weather : existing.weather || null,
+        foodIntake: entryData.foodIntake !== undefined ? entryData.foodIntake : existing.foodIntake || null,
+        stressfulEvents: entryData.stressfulEvents !== undefined ? entryData.stressfulEvents : existing.stressfulEvents || null,
+        moodNotes: entryData.moodNotes !== undefined ? entryData.moodNotes : existing.moodNotes || null,
       };
       
       const putRequest = store.put(dailyEntry);
@@ -206,9 +211,16 @@ export const updateJournalContent = async (date, content, wordCount) => {
 
 // update just the mood
 export const updateMood = async (date, moodValue) => {
+  // Get existing entry to preserve timestamp if mood was already set
+  const existing = await getDailyEntry(date);
+  const timestamp = existing && existing.mood === moodValue 
+    ? existing.timestamp 
+    : new Date().getTime(); // New timestamp if mood changed
+  
   return await saveDailyEntry({
     date: date,
-    mood: moodValue
+    mood: moodValue,
+    timestamp: timestamp
   });
 };
 
@@ -534,4 +546,39 @@ export const hasEntryForDate = async (date) => {
 // get all entries for export
 export const getAllDataForExport = async () => {
   return await getAllEntries();
+};
+
+// get mood entries within date range for export
+export const getMoodEntriesByDateRange = async (startDate, endDate) => {
+  try {
+    const db = await ensureDB();
+    const userId = getCurrentUserId();
+    
+    return new Promise((resolve, reject) => {
+      const transaction = db.transaction([STORE_NAME], 'readonly');
+      const store = transaction.objectStore(STORE_NAME);
+      const index = store.index('date');
+      
+      const range = IDBKeyRange.bound(startDate, endDate);
+      const request = index.getAll(range);
+
+      request.onsuccess = () => {
+        const entries = request.result
+          .filter(entry => entry.userId === userId && entry.mood != null)
+          .sort((a, b) => {
+            // Sort by date, then by timestamp
+            const dateCompare = a.date.localeCompare(b.date);
+            if (dateCompare !== 0) return dateCompare;
+            return (a.timestamp || 0) - (b.timestamp || 0);
+          });
+        resolve(entries);
+      };
+      
+      request.onerror = () => reject(request.error);
+      transaction.onerror = () => reject(transaction.error);
+    });
+  } catch (error) {
+    console.error('getMoodEntriesByDateRange error:', error);
+    return [];
+  }
 };
